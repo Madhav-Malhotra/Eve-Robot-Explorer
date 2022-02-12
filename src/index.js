@@ -7,7 +7,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 
 
-
 // ==================== SETUP ====================== //
 const scene = new Scene(); // Add scene
 const loader = new GLTFLoader(); // Add loader
@@ -19,13 +18,12 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 // Arguments (camera to orbit, canvas element that graphics are rendered to)
-const controls = new OrbitControls( camera, renderer.domElement );
-controls.enableDamping = true; // Adds 'weight' to how camera moves
-controls.autoRotate = true; // Automatically starts orbiting
+const orbit = new OrbitControls( camera, renderer.domElement );
+orbit.enableDamping = true; // Adds 'weight' to how camera moves
 
-// Call controls.update() after any manual camera transforms
-camera.position.set( 0, 1, 2.3 ); controls.update(); 
-camera.lookAt(new Vector3(0,0,0)); controls.update();
+// Call orbit.update() after any manual camera transforms
+camera.position.set( 0, 1, 2.3 ); orbit.update(); 
+camera.lookAt(new Vector3(0,0,0)); orbit.update();
 
 document.body.appendChild(renderer.domElement); // Display canvas on page
 
@@ -54,13 +52,35 @@ light3.position.set(-1,2,3); light4.position.set(-1,2,-3);
 
 
 
-
 // ================== RENDER ================= //
 function render() {
   requestAnimationFrame(render);
-  // Needed BEFORE .render() if controls.enableDamping or controls.autoRotate are set to true 
-  controls.update();  
+  // Needed BEFORE .render() if orbit.enableDamping or orbit.autoRotate are set to true 
+  orbit.update();
   renderer.render(scene, camera);
 }
 
 render();
+
+
+
+
+
+// ================= HELPER ================== //
+window.onkeydown = handleKeyboardInput;
+function handleKeyboardInput(e) {
+  if (e.key == "ArrowUp") {
+    Eve.translateX(0.05);
+    Eve.translateZ(0.05);
+  }
+  if (e.key == "ArrowDown") {
+    Eve.translateX(-0.05);
+    Eve.translateZ(-0.05);
+  }
+  if (e.key == "ArrowLeft") {
+    Eve.rotation.y -= 0.05;
+  }
+  if (e.key == "ArrowRight") {
+    Eve.rotation.y += 0.05;
+  }
+}
