@@ -2,7 +2,8 @@
 import './style.css'
 import {
     DirectionalLight, Scene, Vector3,
-    Object3D, WebGLRenderer, PerspectiveCamera
+    Object3D, WebGLRenderer, PerspectiveCamera,
+    AxesHelper, GridHelper, Matrix4
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -15,6 +16,28 @@ const gui = new dat.GUI(); //Debug
 const canvas = document.querySelector('canvas.webgl');
 const scene = new Scene();
 const loader = new GLTFLoader(); // Add loader
+
+
+// ======================= VIEW =================== //
+// Add camera. Arguments (field of view in degrees, aspect ratio, closest render distance, furthest render distance)
+const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// Controls
+const orbit = new OrbitControls(camera, canvas);
+orbit.enableDamping = true;
+
+// Call orbit.update() after any manual camera transforms
+camera.position.set( 0, 1, 2.3 ); orbit.update(); 
+camera.lookAt(scene.position); orbit.update();
+
+// Renderer
+const renderer = new WebGLRenderer({canvas: canvas});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Camera Motion
+var temp = new Vector3();
+var goal = new Object3D();
 
 
 
@@ -35,7 +58,9 @@ let Eve;
 
 const success = (gltf) => {
   Eve = gltf.scene;
-  scene.add(Eve);
+  Eve.add(goal); scene.add(Eve);
+  goal.position.set(0, 2, -2);
+  orbit.target = Eve.position;
   light.target = Eve; light2.target = Eve; light3.target = Eve; light4.target = Eve;
 } // After load finishes 
 const progress = undefined // Report load progress
@@ -43,55 +68,18 @@ const fail = (error) => console.error(error); // If load fails
 //NOTE: TO ACCESS FILES IN STATIC FOLDER, USE root directory (/)
 loader.load('/Eve.gltf', success, progress, fail); 
 
-
-
-
-// ================ RESPONSIVENESS ================== //
-const sizes = {
-  width: window.innerWidth,
-  height: window.innerHeight
-};
-
-window.addEventListener('resize', () => {
-  // Update sizes
-  sizes.width = window.innerWidth
-  sizes.height = window.innerHeight
-
-  // Update camera
-  camera.aspect = sizes.width / sizes.height
-  camera.updateProjectionMatrix()
-
-  // Update renderer
-  renderer.setSize(sizes.width, sizes.height)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-});
-
-
-
-
-// ======================= VIEW =================== //
-// Add camera. Arguments (field of view in degrees, aspect ratio, closest render distance, furthest render distance)
-const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-// Controls
-const orbit = new OrbitControls(camera, canvas);
-orbit.enableDamping = true;
-
-// Call orbit.update() after any manual camera transforms
-camera.position.set( 0, 1, 2.3 ); orbit.update(); 
-camera.lookAt(new Vector3(0,0,0)); orbit.update();
-
-// Renderer
-const renderer = new WebGLRenderer({canvas: canvas});
-renderer.setSize(sizes.width, sizes.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
+//Axes
+scene.add(new AxesHelper()); scene.add(new GridHelper())
 
 
 
 // ===================== FUNCTIONS ====================== //
 
 const render = () => {
+  //Update camera position
+  temp.setFromMatrixPosition(goal.matrixWorld);
+  camera.position.lerp(temp, 0.2);
+
   // Update Orbital Controls
   orbit.update()
 
@@ -102,6 +90,7 @@ const render = () => {
   window.requestAnimationFrame(render)
 };
 render();
+
 window.onkeydown = handleKeyboardInput;
 function handleKeyboardInput(e) {
   if (e.key == "ArrowUp") {
@@ -113,9 +102,22 @@ function handleKeyboardInput(e) {
     Eve.translateZ(-0.05);
   }
   if (e.key == "ArrowLeft") {
-    Eve.rotation.y -= 0.05;
-  }
-  if (e.key == "ArrowRight") {
     Eve.rotation.y += 0.05;
   }
+  if (e.key == "ArrowRight") {
+    Eve.rotation.y -= 0.05;
+  }
 }
+
+
+
+// ================ RESPONSIVENESS ================== //
+window.addEventListener('resize', () => {
+  // Update camera
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+
+// Update renderer
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
