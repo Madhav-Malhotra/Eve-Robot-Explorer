@@ -27,7 +27,6 @@ const orbit = new OrbitControls(camera, canvas);
 orbit.enableDamping = true;
 
 // Call orbit.update() after any manual camera transforms
-camera.position.set( 0, 1, 2.3 ); orbit.update(); 
 camera.lookAt(scene.position); orbit.update();
 
 // Renderer
@@ -38,7 +37,6 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 // Camera Motion
 var temp = new Vector3();
 var goal = new Object3D();
-
 
 
 // ================ OBJECTS ================= //
@@ -59,7 +57,7 @@ let Eve;
 const success = (gltf) => {
   Eve = gltf.scene;
   Eve.add(goal); scene.add(Eve);
-  goal.position.set(0, 2, -2);
+  goal.position.set(-3, 2.1, -2.1);
   orbit.target = Eve.position;
   light.target = Eve; light2.target = Eve; light3.target = Eve; light4.target = Eve;
 } // After load finishes 
@@ -75,10 +73,17 @@ scene.add(new AxesHelper()); scene.add(new GridHelper())
 
 // ===================== FUNCTIONS ====================== //
 
+//Handle mousedown
+let mouseDown = 0;
+orbit.addEventListener("start", () => ++mouseDown ); // mouseDown = 1
+orbit.addEventListener("end", () => --mouseDown); // mouseDown = 2
+
 const render = () => {
-  //Update camera position
-  temp.setFromMatrixPosition(goal.matrixWorld);
-  camera.position.lerp(temp, 0.2);
+  if (!mouseDown) {
+    //Update camera position
+    temp.setFromMatrixPosition(goal.matrixWorld);
+    camera.position.lerp(temp, 0.05);
+  }
 
   // Update Orbital Controls
   orbit.update()
@@ -91,15 +96,16 @@ const render = () => {
 };
 render();
 
+// Handle keyboard
 window.onkeydown = handleKeyboardInput;
 function handleKeyboardInput(e) {
   if (e.key == "ArrowUp") {
-    Eve.translateX(0.05);
-    Eve.translateZ(0.05);
+    Eve.translateX(0.01);
+    Eve.translateZ(0.01);
   }
   if (e.key == "ArrowDown") {
-    Eve.translateX(-0.05);
-    Eve.translateZ(-0.05);
+    Eve.translateX(-0.01);
+    Eve.translateZ(-0.01);
   }
   if (e.key == "ArrowLeft") {
     Eve.rotation.y += 0.05;
