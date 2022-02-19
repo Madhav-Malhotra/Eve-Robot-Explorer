@@ -3,7 +3,7 @@ import './style.css'
 import {
     DirectionalLight, Scene, Vector3,
     Object3D, WebGLRenderer, PerspectiveCamera,
-    AxesHelper, GridHelper, Matrix4
+    AxesHelper, GridHelper
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -76,13 +76,36 @@ scene.add(new AxesHelper()); scene.add(new GridHelper())
 //Handle mousedown
 let mouseDown = 0;
 orbit.addEventListener("start", () => ++mouseDown ); // mouseDown = 1
-orbit.addEventListener("end", () => --mouseDown); // mouseDown = 2
+orbit.addEventListener("end", () => --mouseDown); // mouseDown = 
+// Handle keyboard
+let key = null;
+window.onkeydown = handleKeyboardInput;
+function handleKeyboardInput(e) {
+  if (e.key == "ArrowUp") key = "Up";
+  if (e.key == "ArrowDown") key = "Down";
+  if (e.key == "ArrowLeft") key = "Left";
+  if (e.key == "ArrowRight") key = "Right";
+}
+window.onkeyup = () => key = null;
 
 const render = () => {
   if (!mouseDown) {
     //Update camera position
     temp.setFromMatrixPosition(goal.matrixWorld);
     camera.position.lerp(temp, 0.05);
+  }
+
+  if (key) {
+    if (key == "Up") {
+      Eve.translateX(0.03);
+      Eve.translateZ(0.03)
+    }
+    if (key == "Down") {
+      Eve.translateX(-0.03);
+      Eve.translateZ(-0.03)
+    }
+    if (key == "Left") Eve.rotation.y += 0.03;
+    if (key == "Right") Eve.rotation.y += -0.03;
   }
 
   // Update Orbital Controls
@@ -95,25 +118,6 @@ const render = () => {
   window.requestAnimationFrame(render)
 };
 render();
-
-// Handle keyboard
-window.onkeydown = handleKeyboardInput;
-function handleKeyboardInput(e) {
-  if (e.key == "ArrowUp") {
-    Eve.translateX(0.01);
-    Eve.translateZ(0.01);
-  }
-  if (e.key == "ArrowDown") {
-    Eve.translateX(-0.01);
-    Eve.translateZ(-0.01);
-  }
-  if (e.key == "ArrowLeft") {
-    Eve.rotation.y += 0.05;
-  }
-  if (e.key == "ArrowRight") {
-    Eve.rotation.y -= 0.05;
-  }
-}
 
 
 
