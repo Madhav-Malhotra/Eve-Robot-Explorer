@@ -63,8 +63,8 @@ const success = (gltf) => {
 } // After load finishes 
 const progress = undefined // Report load progress
 const fail = (error) => console.error(error); // If load fails 
-//NOTE: TO ACCESS FILES IN STATIC FOLDER, USE root directory (/)
-loader.load('/Eve.gltf', success, progress, fail); 
+//NOTE: TO ACCESS FILES IN STATIC FOLDER, USE current directory (./)
+loader.load('./Eve.gltf', success, progress, fail); 
 
 //Axes
 scene.add(new AxesHelper()); scene.add(new GridHelper())
