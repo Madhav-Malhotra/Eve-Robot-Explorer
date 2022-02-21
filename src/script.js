@@ -3,7 +3,8 @@ import './style.css'
 import {
     DirectionalLight, Scene, Vector3,
     Object3D, WebGLRenderer, PerspectiveCamera,
-    AxesHelper, GridHelper
+    TextureLoader, PlaneBufferGeometry,
+    MeshStandardMaterial, Mesh, DoubleSide
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -16,6 +17,7 @@ const gui = new dat.GUI(); //Debug
 const canvas = document.querySelector('canvas.webgl');
 const scene = new Scene();
 const loader = new GLTFLoader(); // Add loader
+const textureLoader = new TextureLoader();
 
 
 // ======================= VIEW =================== //
@@ -64,11 +66,19 @@ const success = (gltf) => {
 const progress = undefined // Report load progress
 const fail = (error) => console.error(error); // If load fails 
 //NOTE: TO ACCESS FILES IN STATIC FOLDER, USE current directory (./)
-loader.load('./Eve.gltf', success, progress, fail); 
+loader.load('./Eve.glb', success, progress, fail); 
 
-//Axes
-scene.add(new AxesHelper()); scene.add(new GridHelper())
-
+// Add plane
+const height = textureLoader.load("./height.png");
+const planeGeo = new PlaneBufferGeometry(3,3,64,64);
+const planeMaterial = new MeshStandardMaterial({
+  color: "#B7662B",
+  displacementMap: height
+});
+const plane = new Mesh(planeGeo,planeMaterial);
+plane.rotation.x = 1.571; plane.position.y = -1.3; plane.material.side = DoubleSide;
+scene.add(plane);
+gui.add(plane.position, "x"); gui.add(plane.position, "y"); gui.add(plane.position, "z");
 
 
 // ===================== FUNCTIONS ====================== //
