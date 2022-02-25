@@ -3,7 +3,8 @@ import './style.css';
 import {
     DirectionalLight, Scene, Vector3,
     Object3D, WebGLRenderer, PerspectiveCamera,
-    Color, FogExp2
+    Color, FogExp2, DirectionalLightHelper,
+    HemisphereLight, HemisphereLightHelper
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -51,24 +52,51 @@ var goal = new Object3D();
 // ================ OBJECTS ================= //
 // Lights
 
-const light = new DirectionalLight(0xffffff, 0.9);
-const light2 = new DirectionalLight(0x08F7FE, 0.9);
-const light3 = new DirectionalLight(0xFE53BB, 0.9);
-const light4 = new DirectionalLight(0xffffff, 0.9);
+// Dir
+const dirLight = new DirectionalLight( 0xbe8484, 2 );
+dirLight.position.set( - 1, 1.75, 1.1 );
+dirLight.position.multiplyScalar( 50 );
+scene.add( dirLight );
 
-scene.add(light); scene.add(light2); scene.add(light3); scene.add(light4);
-light.position.set(1,2,3); light2.position.set(1,2,-3);
-light3.position.set(-1,2,3); light4.position.set(-1,2,-3);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 2048;
+dirLight.shadow.mapSize.height = 2048;
+const d = 50;
+dirLight.shadow.camera.left = - d;
+dirLight.shadow.camera.right = d;
+dirLight.shadow.camera.top = d;
+dirLight.shadow.camera.bottom = - d;
+dirLight.shadow.camera.far = 3500;
+dirLight.shadow.bias = - 0.0001;
+
+const dirLight2 = new DirectionalLight( 0xbe8484, 0.7 );
+dirLight2.position.set( 1, 1.75, -1.1 );
+dirLight2.position.multiplyScalar( 50 );
+scene.add( dirLight2 );
+
+const dirLight3 = new DirectionalLight( 0xbe8484, 0.7 );
+dirLight3.position.set( -1, 1.75, -1.1 );
+dirLight3.position.multiplyScalar( 50 );
+scene.add( dirLight3 );
+
+const dirLight4 = new DirectionalLight( 0xbe8484, 0.7 );
+dirLight4.position.set( 1, 1.75, 1.1 );
+dirLight4.position.multiplyScalar( 50 );
+scene.add( dirLight4 );
+
 
 // Add Eve
 let Eve;
 
 const eveLoadSuccess = (gltf) => {
   Eve = gltf.scene;
+  gltf.scene.traverse( function( node ) { //.traverse runs on obj and any children
+    if ( node.isMesh ) { node.castShadow = true; } // For casting shadows
+  });
+
   Eve.add(goal); scene.add(Eve);
   goal.position.set(-3, 2.1, -2.1);
   orbit.target = Eve.position;
-  light.target = Eve; light2.target = Eve; light3.target = Eve; light4.target = Eve;
 } // After load finishes 
 const progress = undefined // Report load progress
 const fail = (error) => console.error(error); // If load fails 
@@ -79,6 +107,9 @@ loader.load('./Eve.glb', eveLoadSuccess, progress, fail);
 let terrain;
 const terrainLoadSuccess = (gltf) => {
   terrain = gltf.scene;
+  gltf.scene.traverse( function( node ) { //.traverse runs on obj and any children
+    if ( node.isMesh ) { node.receiveShadow = true; } // For receiving shadows
+  });
   terrain.position.y = -30;
   scene.add(terrain);
 }
