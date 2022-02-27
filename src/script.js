@@ -3,19 +3,14 @@ import './style.css';
 import {
     DirectionalLight, Scene, Vector3,
     Object3D, WebGLRenderer, PerspectiveCamera,
-    Color, FogExp2, DirectionalLightHelper,
-    HemisphereLight, HemisphereLightHelper
+    Color, FogExp2, AxesHelper
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-import * as dat from 'dat.gui'
-
-
 
 
 // ================ SETUP ==================== //
-const gui = new dat.GUI(); //Debug
 const canvas = document.querySelector('canvas.webgl');
 const scene = new Scene();
 const loader = new GLTFLoader(); // Add loader
@@ -86,6 +81,9 @@ scene.add( dirLight4 );
 
 
 // Add Eve
+const empty = new Object3D();
+// empty.add(new AxesHelper(2))
+empty.rotateY(Math.PI / 4)
 let Eve;
 
 const eveLoadSuccess = (gltf) => {
@@ -94,9 +92,9 @@ const eveLoadSuccess = (gltf) => {
     if ( node.isMesh ) { node.castShadow = true; } // For casting shadows
   });
 
-  Eve.add(goal); scene.add(Eve);
+  Eve.add(goal); empty.attach(Eve); scene.add(empty);
   goal.position.set(-3, 2.1, -2.1);
-  orbit.target = Eve.position;
+  orbit.target = empty.position;
 } // After load finishes 
 const progress = undefined // Report load progress
 const fail = (error) => console.error(error); // If load fails 
@@ -114,7 +112,6 @@ const terrainLoadSuccess = (gltf) => {
   scene.add(terrain);
 }
 loader.load('./Mars.glb', terrainLoadSuccess, progress, fail); 
-
 
 // ===================== FUNCTIONS ====================== //
 
@@ -135,25 +132,38 @@ function handleKeyboardInput(e) {
 window.onkeydown = handleKeyboardInput;
 window.onkeyup = () => key = null;
 
+// Handle mouse
+let mouseY;
+window.addEventListener("mousemove", (e) => mouseY = e.clientY);
+
+
 // Render
 const render = () => {
   if (!mouseDown) {
     //Update camera position
     temp.setFromMatrixPosition(goal.matrixWorld);
-    camera.position.lerp(temp, 0.05);
+    camera.position.lerp(temp, 0.07);
   }
 
   if (key) {
     if (key == "Up") {
-      Eve.translateX(0.15);
-      Eve.translateZ(0.15);
+      // empty.translateX(0.15);
+      empty.translateZ(0.15);
     }
     if (key == "Down") {
-      Eve.translateX(-0.15);
-      Eve.translateZ(-0.15);
+      // empty.translateX(-0.15);
+      empty.translateZ(-0.15);
     }
-    if (key == "Left") Eve.rotation.y += 0.03;
-    if (key == "Right") Eve.rotation.y += -0.03;
+    if (key == "Left") empty.rotation.y += 0.03;
+    if (key == "Right") empty.rotation.y += -0.03;
+  }
+
+  //Mouse motion
+  const halfHeight = window.innerHeight * 0.5;
+  const rot = (mouseY - halfHeight) / (halfHeight); // From -1 to 1
+  if (Math.abs(rot) > 0.33 && Eve) {
+    //Rotate sthng
+    console.log(empty.axis)
   }
 
   // Update Orbital Controls
