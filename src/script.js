@@ -12,6 +12,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // ================ SETUP ==================== //
 const canvas = document.querySelector('canvas.webgl');
+let opened = false;
+canvas.addEventListener("click", () => {canvas.requestPointerLock(); opened = true;})
 const scene = new Scene();
 const loader = new GLTFLoader(); // Add loader
 
@@ -112,9 +114,20 @@ window.onkeydown = (e) => key[e.key] = true;
 window.onkeyup = (e) => key[e.key] = false;
 
 // Handle mouse
-let mouseY;
-window.addEventListener("mousemove", (e) => mouseY = e.clientY);
+let mouseY, mouseX;
+window.addEventListener("mousemove", (e) => {mouseY = e.movementY; mouseX = e.movementX;})
 
+//Turn off pointer lock
+if ("onpointerlockchange" in document) {
+  document.addEventListener('pointerlockchange', lockChangeAlert, false);
+} else if ("onmozpointerlockchange" in document) {
+  document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+}
+
+function lockChangeAlert() {
+  if(document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) null 
+  else opened = false;
+}
 
 // Render
 const render = () => {
@@ -124,16 +137,15 @@ const render = () => {
     camera.position.lerp(temp, 0.07);
   }
 
-  if (key["ArrowUp"]) empty.translateZ(0.15);
-  if (key["ArrowDown"]) empty.translateZ(-0.15);
-  if (key["ArrowLeft"]) empty.rotateY(0.03);
-  if (key["ArrowRight"]) empty.rotateY(-0.03);
+  if (Eve && opened) {
+    if (key["ArrowUp"]) empty.translateZ(0.15);
+    if (key["ArrowDown"]) empty.translateZ(-0.15);
+    if (key["ArrowLeft"]) empty.rotateY(0.03);
+    if (key["ArrowRight"]) empty.rotateY(-0.03);
 
-  //Mouse motion
-  const halfHeight = window.innerHeight * 0.5;
-  const rot = (mouseY - halfHeight) / (halfHeight); // From -1 to 1
-  if (Math.abs(rot) > 0.33 && Eve) {
-    empty.rotateX(rot / 100);
+    //Mouse motion
+    empty.rotateX(mouseY / 1000);
+    empty.rotateY(-mouseX / 1000);
   }
 
   // Update Orbital Controls
