@@ -53,17 +53,6 @@ dirLight.position.set( - 1, 1.75, 1.1 );
 dirLight.position.multiplyScalar( 50 );
 scene.add( dirLight );
 
-dirLight.castShadow = true;
-dirLight.shadow.mapSize.width = 2048;
-dirLight.shadow.mapSize.height = 2048;
-const d = 50;
-dirLight.shadow.camera.left = - d;
-dirLight.shadow.camera.right = d;
-dirLight.shadow.camera.top = d;
-dirLight.shadow.camera.bottom = - d;
-dirLight.shadow.camera.far = 3500;
-dirLight.shadow.bias = - 0.0001;
-
 const dirLight2 = new DirectionalLight( 0xbe8484, 0.7 );
 dirLight2.position.set( 1, 1.75, -1.1 );
 dirLight2.position.multiplyScalar( 50 );
@@ -104,9 +93,6 @@ loader.load('./Eve.glb', eveLoadSuccess, progress, fail);
 let terrain;
 const terrainLoadSuccess = (gltf) => {
   terrain = gltf.scene;
-  gltf.scene.traverse( function( node ) { //.traverse runs on obj and any children
-    if ( node.isMesh ) { node.receiveShadow = true; } // For receiving shadows
-  });
   terrain.position.y = -30;
   scene.add(terrain);
 }
@@ -120,16 +106,10 @@ orbit.addEventListener("start", () => ++mouseDown ); // mouseDown = 1
 orbit.addEventListener("end", () => --mouseDown); // mouseDown = 0
 
 // Handle keyboard
-let key = null;
+let key = {};
 //Keyboard input
-function handleKeyboardInput(e) {
-  if (e.key == "ArrowUp") key = "Up";
-  if (e.key == "ArrowDown") key = "Down";
-  if (e.key == "ArrowLeft") key = "Left";
-  if (e.key == "ArrowRight") key = "Right";
-};
-window.onkeydown = handleKeyboardInput;
-window.onkeyup = () => key = null;
+window.onkeydown = (e) => key[e.key] = true;
+window.onkeyup = (e) => key[e.key] = false;
 
 // Handle mouse
 let mouseY;
@@ -144,12 +124,10 @@ const render = () => {
     camera.position.lerp(temp, 0.07);
   }
 
-  if (key) {
-    if (key == "Up") empty.translateZ(0.15);
-    if (key == "Down") empty.translateZ(-0.15);
-    if (key == "Left") empty.rotateY(0.03);
-    if (key == "Right") empty.rotateY(-0.03);
-  }
+  if (key["ArrowUp"]) empty.translateZ(0.15);
+  if (key["ArrowDown"]) empty.translateZ(-0.15);
+  if (key["ArrowLeft"]) empty.rotateY(0.03);
+  if (key["ArrowRight"]) empty.rotateY(-0.03);
 
   //Mouse motion
   const halfHeight = window.innerHeight * 0.5;
