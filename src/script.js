@@ -3,7 +3,7 @@ import './style.css';
 import {
     DirectionalLight, Scene, Vector3,
     Object3D, WebGLRenderer, PerspectiveCamera,
-    Color, FogExp2, AxesHelper
+    Color, FogExp2,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -82,7 +82,6 @@ scene.add( dirLight4 );
 
 // Add Eve
 const empty = new Object3D();
-// empty.add(new AxesHelper(2))
 empty.rotateY(Math.PI / 4)
 let Eve;
 
@@ -146,24 +145,17 @@ const render = () => {
   }
 
   if (key) {
-    if (key == "Up") {
-      // empty.translateX(0.15);
-      empty.translateZ(0.15);
-    }
-    if (key == "Down") {
-      // empty.translateX(-0.15);
-      empty.translateZ(-0.15);
-    }
-    if (key == "Left") empty.rotation.y += 0.03;
-    if (key == "Right") empty.rotation.y += -0.03;
+    if (key == "Up") empty.translateZ(0.15);
+    if (key == "Down") empty.translateZ(-0.15);
+    if (key == "Left") empty.rotateY(0.03);
+    if (key == "Right") empty.rotateY(-0.03);
   }
 
   //Mouse motion
   const halfHeight = window.innerHeight * 0.5;
   const rot = (mouseY - halfHeight) / (halfHeight); // From -1 to 1
   if (Math.abs(rot) > 0.33 && Eve) {
-    //Rotate sthng
-    console.log(empty.axis)
+    empty.rotateX(rot / 100);
   }
 
   // Update Orbital Controls
