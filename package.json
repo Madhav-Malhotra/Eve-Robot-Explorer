@@ -6,7 +6,7 @@
     "dev": "webpack serve --config ./bundler/webpack.dev.js"
   },
   "dependencies": {
-    "three": "^0.126.0"
+    "three": "~0.137.4"
   },
   "devDependencies": {
     "@babel/core": "^7.13.1",
