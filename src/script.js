@@ -84,7 +84,7 @@ function init() {
     orbit.target = empty.position;
 
     // Get bounding box
-    boundBox = new THREE.BoundingBoxHelper(Eve, 0x00ff00);
+    boundBox = new THREE.BoxHelper(Eve, 0x00ff00);
     boundBox.matrixAutoUpdate = true;
     scene.add(boundBox);
   };
@@ -198,15 +198,17 @@ function detectCollision() {
     // Get global coordinates of edge
     const l = new THREE.Vector3(vertices[i],vertices[i+1],vertices[i+2]);
     const g = l.applyMatrix4(boundBox.matrix);
-    //Get line going from centre of boundbox to edge
-    const dir = g.sub( boundBox.position );
+    //Get line going from centre of Eve to boundbox edge
+    let pos = new THREE.Vector3();
+    Eve.getWorldPosition(pos);
+    const dir = g.sub( pos );
 
     //Send a ray out in that direction and see if it collides with anything
-    const ray = new THREE.Raycaster( boundBox.position, dir.clone().normalize() );
+    const ray = new THREE.Raycaster( pos, dir.clone().normalize() );
     const collisions = ray.intersectObjects( [terrain.children[0]] );
 
     //If collision
-    if ( collisions.length > 0 && collisions[0].distance < dir.length() ) {
+    if ( collisions.length > 0 && collisions[0].distance < 0.95*dir.length() ) {
       console.log("hit");
       empty.translateOnAxis(dir.clone().normalize(), -0.05);
     }
