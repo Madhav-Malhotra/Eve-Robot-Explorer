@@ -86,6 +86,7 @@ function init() {
     // Get bounding box
     boundBox = new THREE.BoxHelper(Eve, 0x00ff00);
     boundBox.matrixAutoUpdate = true;
+    boundBox.material.visible = false;
     scene.add(boundBox);
   };
   const progress = undefined // Report load progress
@@ -209,7 +210,6 @@ function detectCollision() {
 
     //If collision
     if ( collisions.length > 0 && collisions[0].distance < 0.95*dir.length() ) {
-      console.log("hit");
       empty.translateOnAxis(dir.clone().normalize(), -0.05);
     }
   }
