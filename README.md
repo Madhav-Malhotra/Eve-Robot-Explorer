@@ -10,3 +10,4 @@ Having learned CAD modelling, I wanted to get my designs on the web. So I publis
 You can check out the model yourself [here](https://madhav-malhotra.github.io/Eve-Robot-Explorer) if you'd like :-)
 
 ![Eve Preview](./preview.png)
+![Mars Preview](./preview2.png)
